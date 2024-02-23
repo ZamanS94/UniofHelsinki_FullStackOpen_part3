@@ -22,6 +22,11 @@ let persons = [
         "id": 4,
         "name": "Mary Poppendieck",
         "number": "39-23-6423122"
+    },
+    {
+        "id": 5,
+        "name": "Pinky",
+        "number": "39-23-6423122"
     }
 ]
 app.use(express.json())
@@ -102,14 +107,14 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.delete('/delete/:id', (request, response) => {
     const id = Number(request.params.id);
     persons = persons.filter(person => person.id !== id)
-
-    response.status(204).end()
+    response.send(`${id} Deleted!`)
 })
 
 const PORT = 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
+
 })
