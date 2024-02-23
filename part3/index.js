@@ -78,27 +78,29 @@ const generateId = () => {
 }
 
 app.post('/api/persons', (request, response) => {
-    const body = request.body;
+    const body = request.body
+    console.log(request.body)
 
     if (!body.name || !body.number) {
         return response.status(400).json({
-            error: 'name or number missing'
+            error: 'Name or Number Missing'
         })
     }
 
     const person = {
+        id: generateId(),
         name: body.name,
         number: body.number,
-        id: generateId(),
-    };
+        
+    }
 
-    persons = persons.concat(person);
+    persons = persons.concat(person)
 
     response.json(person)
 })
 
 app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
+    const id = Number(request.params.id)
     const person = persons.find(person => person.id === id)
     if (person) {
         response.json(person)
