@@ -98,8 +98,7 @@ app.get('/api/persons/:id', (request, response) => {
     if (person) {
         response.json(person)
     } else {
-        console.log('Person not found')
-        response.status(404).end()
+        response.status(404).send('Person not found')
     }
 })
 
