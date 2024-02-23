@@ -81,22 +81,29 @@ app.post('/api/persons', (request, response) => {
     const body = request.body
     console.log(request.body)
 
-    if (!body.name || !body.number) {
-        return response.status(400).json({
-            error: 'Name or Number Missing'
-        })
+
+if (!body.name || !body.number) {
+    response.status(400).json({ error: "Name or number is missing" })
+}
+
+    let value = false 
+    persons.map(person => {
+        if(person.name==body.name) {value = true}
+    })
+
+    if(value){
+        response.status(400).json({ error: "Name must be unique" })
     }
-
-    const person = {
-        id: generateId(),
-        name: body.name,
-        number: body.number,
-        
+    else{
+        const person = {
+            id: generateId(),
+            name: body.name,
+            number: body.number,
+            
+        }
+        persons = persons.concat(person)
+        response.json(person)
     }
-
-    persons = persons.concat(person)
-
-    response.json(person)
 })
 
 app.get('/api/persons/:id', (request, response) => {
