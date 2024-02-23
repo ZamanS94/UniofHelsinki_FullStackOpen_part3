@@ -35,6 +35,36 @@ app.get('/api/persons', (request, response) => {
 })
 
 
+function checkTime(i) {
+  if (i < 10) {
+    i = "0" + i
+  }
+  return i
+}
+
+function getCurrentDateTime() {
+  var now = new Date()
+  var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  var day = days[now.getDay()]
+  var month = months[now.getMonth()]
+  var date = now.getDate()
+  var year = now.getFullYear()
+  var h = now.getHours()
+  var m = now.getMinutes()
+  var s = now.getSeconds()
+  m = checkTime(m)
+  s = checkTime(s)
+
+  return `${day} ${month} ${date} ${year} ${h}:${m}:${s}  GMT+0200 (Eastern European Standard Time)`
+}
+
+app.get('/info', (request, response) => {
+  const param1 = persons.length;
+  const param2 = getCurrentDateTime();
+  response.send(`Phonebook has info for ${param1} people <br/><br/>${param2}`)
+})
+
 const generateId = () => {
     const maxId = persons.length > 0
         ? Math.max(...persons.map(n => n.id))
@@ -64,7 +94,7 @@ app.post('/api/persons', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id);
-    const person = persons.find(person => person.id === id);
+    const person = persons.find(person => person.id === id)
     if (person) {
         response.json(person)
     } else {
