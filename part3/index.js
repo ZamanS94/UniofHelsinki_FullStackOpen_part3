@@ -1,6 +1,9 @@
 import express, {json} from 'express'
 
+import morgan from 'morgan'
+
 const app = express()
+app.use(morgan('tiny'))
 
 let persons = [
     {
@@ -117,7 +120,7 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.delete('/delete/:id', (request, response) => {
-    const id = Number(request.params.id);
+    const id = Number(request.params.id)
     persons = persons.filter(person => person.id !== id)
     response.send(`${id} Deleted!`)
 })
