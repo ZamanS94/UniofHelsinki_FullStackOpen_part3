@@ -1,6 +1,8 @@
-import express, {json} from 'express'
+const express = require('express')
+const { json } = require('express')
+const morgan = require('morgan')
 
-import morgan from 'morgan'
+
 
 const app = express()
 app.use(morgan('tiny'))
