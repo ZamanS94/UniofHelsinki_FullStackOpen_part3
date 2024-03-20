@@ -89,7 +89,7 @@ const generateId = () => {
     return maxId + 1
 }
 
-app.post('/api/persons/:id', (request, response) => {
+app.post('/api/persons', (request, response) => {
     const body = request.body
 
     if (!body.name || !body.number) {
