@@ -10,7 +10,7 @@ app.use(morgan('tiny'))
 
 morgan.token('body', req => {
     return JSON.stringify(req.body)
-  })
+})
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
@@ -53,33 +53,33 @@ app.get('/api/persons', (request, response) => {
 
 
 function checkTime(i) {
-  if (i < 10) {
-    i = "0" + i
-  }
-  return i
+    if (i < 10) {
+        i = "0" + i
+    }
+    return i
 }
 
 function getCurrentDateTime() {
-  var now = new Date()
-  var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-  var day = days[now.getDay()]
-  var month = months[now.getMonth()]
-  var date = now.getDate()
-  var year = now.getFullYear()
-  var h = now.getHours()
-  var m = now.getMinutes()
-  var s = now.getSeconds()
-  m = checkTime(m)
-  s = checkTime(s)
+    var now = new Date()
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    var day = days[now.getDay()]
+    var month = months[now.getMonth()]
+    var date = now.getDate()
+    var year = now.getFullYear()
+    var h = now.getHours()
+    var m = now.getMinutes()
+    var s = now.getSeconds()
+    m = checkTime(m)
+    s = checkTime(s)
 
-  return `${day} ${month} ${date} ${year} ${h}:${m}:${s}  GMT+0200 (Eastern European Standard Time)`
+    return `${day} ${month} ${date} ${year} ${h}:${m}:${s}  GMT+0200 (Eastern European Standard Time)`
 }
 
 app.get('/info', (request, response) => {
-  const param1 = persons.length;
-  const param2 = getCurrentDateTime();
-  response.send(`Phonebook has info for ${param1} people <br/><br/>${param2}`)
+    const param1 = persons.length;
+    const param2 = getCurrentDateTime();
+    response.send(`Phonebook has info for ${param1} people <br/><br/>${param2}`)
 })
 
 const generateId = () => {
@@ -91,31 +91,51 @@ const generateId = () => {
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
-    console.log(request.body)
 
-
-if (!body.name || !body.number) {
-    response.status(400).json({ error: "Name or number is missing" })
-}
-
-    let value = false 
-    persons.map(person => {
-        if(person.name==body.name) {value = true}
-    })
-
-    if(value){
-        response.status(400).json({ error: "Name must be unique" })
+    if (!body.name || !body.number) {
+        return response.status(400).json({ error: "Name or number is missing" })
     }
-    else{
-        const person = {
-            id: generateId(),
-            name: body.name,
-            number: body.number,
-            
-        }
-        persons = persons.concat(person)
-        response.json(person)
+
+    let nameExists = persons.some(person => person.name === body.name)
+    if (nameExists) {
+        return response.status(400).json({ error: "Name must be unique" })
     }
+
+    const person = {
+        id: generateId(),
+        name: body.name,
+        number: body.number,
+    }
+    persons = persons.concat(person)
+    response.json(person)
+})
+
+app.put('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id)
+    const body = request.body
+
+    const personToUpdate = persons.find(person => person.id === id)
+
+    if (!personToUpdate) {
+        return response.status(404).json({ error: 'Person not found' })
+    }
+
+    // Update only if name and number are provided in the request body
+    if (!body.name || !body.number) {
+        return response.status(400).json({ error: 'Name or number is missing' })
+    }
+
+    // Check if the new name is already in use by another person
+    const nameExists = persons.some(person => person.name === body.name && person.id !== id)
+    if (nameExists) {
+        return response.status(400).json({ error: 'Name must be unique' })
+    }
+
+    // Update the person object
+    personToUpdate.name = body.name
+    personToUpdate.number = body.number
+
+    response.json(personToUpdate)
 })
 
 app.get('/api/persons/:id', (request, response) => {
@@ -137,5 +157,4 @@ app.delete('/api/persons/:id', (request, response) => {
 const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
-
 })
