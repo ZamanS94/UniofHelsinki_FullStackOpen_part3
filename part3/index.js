@@ -157,3 +157,6 @@ const PORT = 3001
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
+
+// We depolyed both backend and frontend to Render
+// Address: https://uniofhelsinki-fullstackopen-part3-2.onrender.com/
