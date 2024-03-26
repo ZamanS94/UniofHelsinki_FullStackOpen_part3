@@ -9,58 +9,70 @@ app.use(express.json())
 
 app.use(express.static(path.join(__dirname, 'dist')))
 
-app.get('/api/persons', async (request, response) => {
+app.get('/', (req, res, next) => {
+    next(new Error('Testing'))
+})
+
+app.get('/api/persons', async (request, response, next) => {
   try {
     const persons = await Phonebook.find({}).select('-_id -__v')
     response.json(persons)
   } catch (error) {
-    response.status(500).json({ error: error.message })
+    next(error)
   }
 })
 
-async function generateSequentialId() {
+async function generateSequentialId(next) {
   try {
-    const lastDocument = await Phonebook.findOne({}, {}, { sort: { 'id': -1 } }).exec();
+    const lastDocument = await Phonebook.findOne({}, {}, { sort: { 'id': -1 } }).exec()
     if (lastDocument) {
       return lastDocument.id + 1
     } else {
       return 1
     }
   } catch (error) {
-    console.error('Error finding last document:', error)
-    throw error
+    next(error)
   }
 }
 
-app.post('/api/persons', async (request, response) => {
+app.post('/api/persons', async (request, response, next) => {
   try {
     const { name, number } = request.body
     if (!name || !number) {
-      throw new Error('Name and number are required')
+      const error = new Error('Name or number missing')
+        error.status = 500
+        throw error
     }
-    const id = await generateSequentialId()
+    const id = await generateSequentialId(next)
     const person = new Phonebook({ id, name, number })
     const savedPerson = await person.save()
     response.json(savedPerson)
   } catch (error) {
-    console.error(error)
-    return response.status(400).json({ error: error.message })
+    next(error)
   }
-});
+})
 
-app.delete('/api/persons/:id', async (request, response) => {
+app.delete('/api/persons/:id', async (request, response, next) => {
     const id = Number(request.params.id)
     try {
       const deletedPerson = await Phonebook.findOneAndDelete({ id })
       if (!deletedPerson) {
-        return response.status(404).json({ error: 'Person not found' })
+        const error = new Error('Person not found')
+        error.status = 404
+        throw error
       }
       response.send(`${id} Deleted!`)
     } catch (error) {
-      response.status(500).json({ error: error.message })
+     next(error)
     }
-  })
-  
+})
+
+app.use((err, req, res, next) => { 
+    console.error(err.stack) 
+    const status = err.status || 500
+    res.status(status).json({ error: err.message })
+})
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
