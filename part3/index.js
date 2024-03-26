@@ -117,12 +117,13 @@ app.delete('/api/persons/:id', async (request, response, next) => {
 })
 
 
+
 app.put('/api/persons/:id', async (request, response, next) => {
     const id_ = request.params.id
     const body = request.body
     try {
         const updatedPerson = await Phonebook.findOneAndUpdate(
-            { id: id_ }, body, { new: true } 
+            { id: id_ }, body, { new: true,runValidators: true } 
         )
         if (!updatedPerson) {
             const error = new Error('Person not found')
@@ -145,3 +146,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+// the app is live at https://uniofhelsinki-fullstackopen-part3-2.onrender.com/
