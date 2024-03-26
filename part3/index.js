@@ -54,6 +54,7 @@ app.post('/api/persons', async (request, response, next) => {
 
 app.delete('/api/persons/:id', async (request, response, next) => {
     const id = Number(request.params.id)
+    console.log(id)
     try {
       const deletedPerson = await Phonebook.findOneAndDelete({ id })
       if (!deletedPerson) {
@@ -64,6 +65,24 @@ app.delete('/api/persons/:id', async (request, response, next) => {
       response.send(`${id} Deleted!`)
     } catch (error) {
      next(error)
+    }
+})
+
+app.put('/api/persons/:id', async (request, response, next) => {
+    const id_ = request.params.id
+    const body = request.body
+    try {
+        const updatedPerson = await Phonebook.findOneAndUpdate(
+            { id: id_ }, body, { new: true } 
+        )
+        if (!updatedPerson) {
+            const error = new Error('Person not found')
+            error.status = 404
+            throw error
+        }
+        response.json(updatedPerson)
+    } catch (error) {
+        next(error)
     }
 })
 
