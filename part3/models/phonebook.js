@@ -15,6 +15,7 @@ mongoose.connect(url, {
 })
 
 const phonebookSchema = new mongoose.Schema({
+  id: Number,
   name: String,
   number: String
 })
