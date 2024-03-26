@@ -13,6 +13,38 @@ app.get('/', (req, res, next) => {
     next(new Error('Testing'))
 })
 
+function checkTime(i) {
+    if (i < 10) {
+        i = "0" + i
+    }
+    return i
+}
+
+function getCurrentDateTime() {
+    var now = new Date()
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    var day = days[now.getDay()]
+    var month = months[now.getMonth()]
+    var date = now.getDate()
+    var year = now.getFullYear()
+    var h = now.getHours()
+    var m = now.getMinutes()
+    var s = now.getSeconds()
+    m = checkTime(m)
+    s = checkTime(s)
+
+    return `${day} ${month} ${date} ${year} ${h}:${m}:${s}  GMT+0200 (Eastern European Standard Time)`
+}
+
+app.get('/info', async (request, response,next) => {
+    const persons = await Phonebook.find({}).select('-_id -__v')
+    const param1 = persons.length
+    const param2 = getCurrentDateTime()
+    response.send(`Phonebook has info for ${param1} people <br/><br/>${param2}`)
+})
+
+
 app.get('/api/persons', async (request, response, next) => {
   try {
     const persons = await Phonebook.find({}).select('-_id -__v')
@@ -24,9 +56,9 @@ app.get('/api/persons', async (request, response, next) => {
 
 async function generateSequentialId(next) {
   try {
-    const lastDocument = await Phonebook.findOne({}, {}, { sort: { 'id': -1 } }).exec()
-    if (lastDocument) {
-      return lastDocument.id + 1
+    const lastPerson = await Phonebook.findOne({}, {}, { sort: { 'id': -1 } }).exec()
+    if (lastPerson) {
+      return lastPerson.id + 1
     } else {
       return 1
     }
@@ -34,6 +66,22 @@ async function generateSequentialId(next) {
     next(error)
   }
 }
+
+app.get('/api/persons/:id', async (request, response, next) => {
+    const id_ = request.params.id
+    try {
+        const person = await Phonebook.findOne({ id: id_ }).select('-_id -__v')
+        if (!person) {
+            const error = new Error('Person not found')
+            error.status = 404
+            throw error
+        }
+        response.json(person)
+    } catch (error) {
+        next(error)
+    }
+})
+
 
 app.post('/api/persons', async (request, response, next) => {
   try {
