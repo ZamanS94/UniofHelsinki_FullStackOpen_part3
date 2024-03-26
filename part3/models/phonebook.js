@@ -21,8 +21,17 @@ const phonebookSchema = new mongoose.Schema({
     minLength: 5,
     required: true
   },
-  number: String
+  number: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        return /^(\d+-\d+)$/.test(v);
+      },
+      message: props => `${props.value} is not a valid phone number. It should contain exactly one hyphen (-).`
+    }
+  }
 })
+
 
 const Phonebook = mongoose.model('Phonebook', phonebookSchema)
 
